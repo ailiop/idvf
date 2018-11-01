@@ -37,29 +37,29 @@ functions.
 
 We assume that we are provided with a deformation vector field (DVF)
 denoted by <img alt="$u$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6dbb78540bd76da3f1625782d42d6d16.svg?invert_in_darkmode"
+src="svgs/6dbb78540bd76da3f1625782d42d6d16.svg?invert_in_darkmode"
 align="middle" width="9.41028pt" height="14.15535pt"/>. The DVF describes a
 (non-linear) mapping from a reference image <img alt="$I_r$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/68a1e29bb03da1906d9220ebd533ad09.svg?invert_in_darkmode"
+src="svgs/68a1e29bb03da1906d9220ebd533ad09.svg?invert_in_darkmode"
 align="middle" width="13.683615pt" height="22.46574pt"/> onto a study image
 <img alt="$I_s$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/0096b70ae460e0de5f398f022769a8f7.svg?invert_in_darkmode"
+src="svgs/0096b70ae460e0de5f398f022769a8f7.svg?invert_in_darkmode"
 align="middle" width="13.430505pt" height="22.46574pt"/> via point-wise
 displacement, i.e., <p align="center"><img alt="$$ &#10;I_r(y) = I_s(y +
 u(y)), &#10;$$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/1aaeda0abb91834a3b58c6321b20a8af.svg?invert_in_darkmode"
+src="svgs/1aaeda0abb91834a3b58c6321b20a8af.svg?invert_in_darkmode"
 align="middle" width="149.046975pt" height="16.438356pt"/></p> at all
 locations <img alt="$y$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/deceeaf6940a8c7a5a02373728002b0f.svg?invert_in_darkmode"
+src="svgs/deceeaf6940a8c7a5a02373728002b0f.svg?invert_in_darkmode"
 align="middle" width="8.6493pt" height="14.15535pt"/> in the reference
 domain. We aim at computing the inverse DVF <img alt="$v$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6c4adbc36120d62b98deef2a20d5d303.svg?invert_in_darkmode"
+src="svgs/6c4adbc36120d62b98deef2a20d5d303.svg?invert_in_darkmode"
 align="middle" width="8.55789pt" height="14.15535pt"/> such that <p
 align="center"><img alt="$$ &#10;I_s(x) = I_r(x + v(x)), &#10;$$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/e77b118cb0d39454a3696351c4aac28e.svg?invert_in_darkmode"
+src="svgs/e77b118cb0d39454a3696351c4aac28e.svg?invert_in_darkmode"
 align="middle" width="150.43182pt" height="16.438356pt"/></p> at all <img
 alt="$x$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode"
+src="svgs/332cc365a4987aacce0ead01b8bdcc0b.svg?invert_in_darkmode"
 align="middle" width="9.3951pt" height="14.15535pt"/> in the study domain.
 
 
@@ -68,30 +68,30 @@ align="middle" width="9.3951pt" height="14.15535pt"/> in the study domain.
 #### Two inverse consistency residuals
 
 If two DVFs <img alt="$u$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6dbb78540bd76da3f1625782d42d6d16.svg?invert_in_darkmode"
+src="svgs/6dbb78540bd76da3f1625782d42d6d16.svg?invert_in_darkmode"
 align="middle" width="9.41028pt" height="14.15535pt"/> and <img alt="$v$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6c4adbc36120d62b98deef2a20d5d303.svg?invert_in_darkmode"
+src="svgs/6c4adbc36120d62b98deef2a20d5d303.svg?invert_in_darkmode"
 align="middle" width="8.55789pt" height="14.15535pt"/> are inverse of each
 other, they must meet the *inverse consistency* (IC) condition. We define
 the study IC residual, <p align="center"><img alt="$$&#10;s(x) = v(x) +
 u(x + v(x)),&#10;$$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6071c793b7bcaacacfa7b12b6173f200.svg?invert_in_darkmode"
+src="svgs/6071c793b7bcaacacfa7b12b6173f200.svg?invert_in_darkmode"
 align="middle" width="189.61965pt" height="16.438356pt"/></p> and the
 reference IC residual, <p align="center"><img alt="$$&#10;r(y) = u(y) +
 v(y + u(y)).&#10;$$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/c2f4b6419bb41288ad987829a8ccf10f.svg?invert_in_darkmode"
+src="svgs/c2f4b6419bb41288ad987829a8ccf10f.svg?invert_in_darkmode"
 align="middle" width="187.65615pt" height="16.438356pt"/></p> The DVFs <img
 alt="$u$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6dbb78540bd76da3f1625782d42d6d16.svg?invert_in_darkmode"
+src="svgs/6dbb78540bd76da3f1625782d42d6d16.svg?invert_in_darkmode"
 align="middle" width="9.41028pt" height="14.15535pt"/> and <img alt="$v$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6c4adbc36120d62b98deef2a20d5d303.svg?invert_in_darkmode"
+src="svgs/6c4adbc36120d62b98deef2a20d5d303.svg?invert_in_darkmode"
 align="middle" width="8.55789pt" height="14.15535pt"/> are
 inverse-consistent if both residuals are zero. The residuals are related to
 the inversion error, <img alt="$e(x) = v(x) -&#10;v_*(x)$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/768f11fd69defab2835e3445913d2f7a.svg?invert_in_darkmode"
+src="svgs/768f11fd69defab2835e3445913d2f7a.svg?invert_in_darkmode"
 align="middle" width="140.28729pt" height="24.6576pt"/>, where <img
 alt="$v_*$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/62555e11fd1268ce81658e8d04041225.svg?invert_in_darkmode"
+src="svgs/62555e11fd1268ce81658e8d04041225.svg?invert_in_darkmode"
 align="middle" width="14.703315pt" height="14.15535pt"/> is the true
 inverse DVF. The IC residuals are computationally available, while the
 inversion error is unknown. We use the IC residuals as feedback in
@@ -113,20 +113,20 @@ determine data-adaptive parameters for feedback control.
 
 The inversion iteration proceeds in two phases. During phase one, at step
 <img alt="$k+1$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/33359de825e43daa97171e27f6558ae9.svg?invert_in_darkmode"
+src="svgs/33359de825e43daa97171e27f6558ae9.svg?invert_in_darkmode"
 align="middle" width="37.385865pt" height="22.83138pt"/>, we update the
 current inverse estimate <img alt="$v_k$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/eaf0887cdc4cb5f8e69a7796f143c3eb.svg?invert_in_darkmode"
+src="svgs/eaf0887cdc4cb5f8e69a7796f143c3eb.svg?invert_in_darkmode"
 align="middle" width="15.23412pt" height="14.15535pt"/> using the study IC
 residual <img alt="$s_k$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/59efeb0f4f5d484a9b8a404d5bdac544.svg?invert_in_darkmode"
+src="svgs/59efeb0f4f5d484a9b8a404d5bdac544.svg?invert_in_darkmode"
 align="middle" width="14.971605pt" height="14.15535pt"/> as feedback: <p
 align="center"><img alt="$$&#10;v_{k+1}(x) = v_k(x) - (1 - \mu_k(x)) s_k(x)
 ,&#10;$$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/8a19510dca81766687d4e19803899701.svg?invert_in_darkmode"
+src="svgs/8a19510dca81766687d4e19803899701.svg?invert_in_darkmode"
 align="middle" width="258.9345pt" height="16.438356pt"/></p> where <img
 alt="$\mu$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/07617f9d8fe48b4a7b3f523d6730eef0.svg?invert_in_darkmode"
+src="svgs/07617f9d8fe48b4a7b3f523d6730eef0.svg?invert_in_darkmode"
 align="middle" width="9.90495pt" height="14.15535pt"/> is the feedback
 control parameter. With the adaptive control schemes provided in this
 repository, the iteration is guaranteed to converge globally, under certain
@@ -136,10 +136,10 @@ Inversion errors can be estimated using the IC residuals and the DVF
 spectral information. Once the errors are made sufficiently small, the
 iteration is switched to phase two: <p align="center"><img
 alt="$$&#10;v_{k+1}(x) = v_k(x) - r_k(x + v_k(x)),&#10;$$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/cfa2d7ff960254eb3b4e70cf32b5aec6.svg?invert_in_darkmode"
+src="svgs/cfa2d7ff960254eb3b4e70cf32b5aec6.svg?invert_in_darkmode"
 align="middle" width="235.70415pt" height="16.438356pt"/></p> where the
 reference IC residual <img alt="$r_k$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/eed77c5296d3cd11c33cd86d1e14efef.svg?invert_in_darkmode"
+src="svgs/eed77c5296d3cd11c33cd86d1e14efef.svg?invert_in_darkmode"
 align="middle" width="14.68236pt" height="14.15535pt"/> at displaced
 locations is used as feedback. The local convergence rate is quadratic
 during phase two. We may refer to this iteration as implicit Newton
@@ -176,21 +176,21 @@ University, Durham, NC, USA, 2018.
 #### DVF inversion
 
 The main function is `dvf.inversion`. It takes a forward DVF <img alt="$u$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6dbb78540bd76da3f1625782d42d6d16.svg?invert_in_darkmode"
+src="svgs/6dbb78540bd76da3f1625782d42d6d16.svg?invert_in_darkmode"
 align="middle" width="9.41028pt" height="14.15535pt"/> and returns the
 inverse DVF <img alt="$v$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/6c4adbc36120d62b98deef2a20d5d303.svg?invert_in_darkmode"
+src="svgs/6c4adbc36120d62b98deef2a20d5d303.svg?invert_in_darkmode"
 align="middle" width="8.55789pt" height="14.15535pt"/>. A 3D DVF is
 represented by a 4D array of size <img alt="$N_x \times N_y \times N_z
 \times 3$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/e43ae8c45f6609ce1d55c352b19fb71b.svg?invert_in_darkmode"
+src="svgs/e43ae8c45f6609ce1d55c352b19fb71b.svg?invert_in_darkmode"
 align="middle" width="131.868165pt" height="22.46574pt"/>, in `single` or
 `double` precision. Specifically, `U(i,j,k,1:3)` is the 3D forward
 displacement vector <img alt="$u(x)$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/320b3450fd8b780975b68c70115439b3.svg?invert_in_darkmode"
+src="svgs/320b3450fd8b780975b68c70115439b3.svg?invert_in_darkmode"
 align="middle" width="31.590735pt" height="24.6576pt"/> at voxel <img
 alt="$x = (i,j,k)$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/80421b97532d6f6d46d108ac51b2848e.svg?invert_in_darkmode"
+src="svgs/80421b97532d6f6d46d108ac51b2848e.svg?invert_in_darkmode"
 align="middle" width="80.245605pt" height="24.6576pt"/>. Two-dimensional
 DVFs are represented similarly.
 
@@ -218,7 +218,7 @@ adaptive feedback control is chosen. Functions `dvf.jacobian` and
 respectively, at all pixels/voxels. The function `dvf.feedbackControlVal`
 takes the eigenvalues and returns adaptive values for the feedback control
 parameter <img alt="$\mu$"
-src="https://rawgit.com/ailiop/idvf/None/svgs/07617f9d8fe48b4a7b3f523d6730eef0.svg?invert_in_darkmode"
+src="svgs/07617f9d8fe48b4a7b3f523d6730eef0.svg?invert_in_darkmode"
 align="middle" width="9.90495pt" height="14.15535pt"/> per the chosen
 scheme.
 
