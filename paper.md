@@ -50,7 +50,7 @@ and reference domains.  The residuals, which are computationally available,
 are related to the unknown inversion error.  We use them as feedback in a
 two-phase iteration.  In the first phase, we modulate the study-domain IC
 residual with adaptive feedback control for guaranteed global convergence,
-under certain mild condition [@medphys2018].  Once the error is made
+under certain mild conditions [@medphys2018].  Once the error is made
 sufficiently small we switch to phase two, where we use the
 reference-domain IC residual and achieve locally quadratic convergence
 rate.  Phase transition and integration is enabled by a multi-resolution
