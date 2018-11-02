@@ -1,11 +1,11 @@
-# idvf
+[![DOI](https://zenodo.org/badge/153499710.svg)](https://zenodo.org/badge/latestdoi/153499710)
 
-## _Iterative Inversion of Deformation Vector Field<br/>with Adaptive Bi-residual Feedback Control_
+# idvf: _Iterative inversion of deformation vector field<br/>with adaptive bi-residual feedback control_
 
 
 <a id="toc"></a>
 
-### Table of contents
+### Contents
 
 - [Algorithm overview](#algorithm)
   - [Two inverse consistency residuals](#ic-residuals)
@@ -71,7 +71,7 @@ and the reference IC residual,
 </i></p>
 
 The DVFs _u_ and _v_ are inverse-consistent if both residuals are zero. The
-residuals are related to the inversion error, _e(x) = v(x) - v&ast;(x)_,
+residuals are related to the inversion error, _e(x) = v(x) &minus; v&ast;(x)_,
 where _v&ast;_ is the true inverse DVF. The IC residuals are
 computationally available, while the inversion error is unknown. We use the
 IC residuals as feedback in iterative DVF inversion, and exercise adaptive
@@ -97,7 +97,7 @@ study IC residual _s<sub>k</sub>_ as feedback:
 
 <p align="center"><i>
 	v<sub>k+1</sub>(x) = 
-	v<sub>k</sub>(x) &minus; (1 - μ<sub>k</sub>(x)) s<sub>k</sub>(x),
+	v<sub>k</sub>(x) &minus; (1 &minus; μ<sub>k</sub>(x)) s<sub>k</sub>(x),
 </i></p> 
 
 where _μ_ is the feedback control parameter. With the adaptive control
@@ -133,9 +133,9 @@ href="#dukephd2018">2</a>].
 
 <a id="medphys2018"></a>[1] A. Dubey&ast;, A.S. Iliopoulos&ast;, X. Sun,
 F.F. Yin, and L. Ren, <a
-href="http://dx.doi.org/10.1002/mp.12962">Iterative inversion of
-deformation vector fields with feedback control</a>, *Medical Physics*,
-45(7):3147-3160 (2018).
+href="http://dx.doi.org/10.1002/mp.12962">"Iterative inversion of
+deformation vector fields with feedback control"</a>, *Medical Physics*,
+45(7):3147-3160, 2018.
 
 <a id="dukephd2018"></a>[2] A. Dubey, *Symmetric Completion of Deformable
 Registration via Bi-residual Inversion*, PhD dissertation, Duke University,

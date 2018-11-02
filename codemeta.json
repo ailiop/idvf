@@ -1,0 +1,35 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+      {
+	  "@type": "Person",
+	  "@id": "http://orcid.org/0000-0002-1959-9792",
+	  "name": "Alexandros-Stavros Iliopoulos",
+	  "email": "ailiop@cs.duke.edu",
+	  "affiliation": "Department of Computer Science, Duke University"
+      },
+      {
+	  "@type": "Person",
+	  "@id": "http://orcid.org/0000-0001-8052-7416",
+	  "name": "Abhishek Dubey",
+	  "email": "abhisdub@cs.duke.edu",
+	  "affiliation": "Department of Computer Science, Duke University"
+      },
+      {
+	  "@type": "Person",
+	  "name": "Xiaobai Sun",
+	  "affiliation": "Department of Computer Science, Duke University"
+      }
+  ],
+  "identifier": "https://doi.org/10.5281/zenodo.1476601",
+  "codeRepository": "https://github.com/ailiop/idvf",
+  "datePublished": "2018-11-01",
+  "dateModified": "2018-11-01",
+  "dateCreated": "2018-11-01",
+  "description": "Iterative inversion of deformation vector field with adaptive bi-residual feedback control",
+  "keywords": "deformation vector field, optical flow, deformable registration, fixed-point iteration, inverse consistency, adaptive feedback control, medical image analysis, computer vision, MATLAB",
+  "license": "GPL v3.0",
+  "title": "idvf",
+  "version": "v1.0.0"
+}
