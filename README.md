@@ -1,4 +1,12 @@
 [![DOI](https://zenodo.org/badge/153499710.svg)](https://zenodo.org/badge/latestdoi/153499710)
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://GitHub.com/Naereen/StrapDown.js/releases/)
+[![Github all releases](https://img.shields.io/github/downloads/Naereen/StrapDown.js/total.svg)](https://GitHub.com/Naereen/StrapDown.js/releases/)
+[![GitHub issues](https://img.shields.io/github/issues/Naereen/StrapDown.js.svg)](https://GitHub.com/Naereen/StrapDown.js/issues/)
+
+
+--------------------------------------------------
+
 
 # idvf: _Iterative inversion of deformation vector field<br/>with adaptive bi-residual feedback control_
 
