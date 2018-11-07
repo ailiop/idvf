@@ -1,11 +1,9 @@
 [![DOI](https://zenodo.org/badge/153499710.svg)](https://zenodo.org/badge/latestdoi/153499710)
-[![GitHub license](https://img.shields.io/github/license/ailiop/idvf.svg)](https://github.com/ailiop/idvf/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/ailiop/idvf.svg)](https://GitHub.com/ailiop/idvf/releases/)
+[![GitHub license](https://img.shields.io/github/license/ailiop/idvf.svg)](https://github.com/ailiop/idvf/blob/master/LICENSE)
 [![Github all releases](https://img.shields.io/github/downloads/ailiop/idvf/total.svg)](https://GitHub.com/ailiop/idvf/releases/)
 [![GitHub issues](https://img.shields.io/github/issues/ailiop/idvf.svg)](https://GitHub.com/ailiop/idvf/issues/)
 
-
---------------------------------------------------
 
 
 # idvf: _Iterative inversion of deformation vector field<br/>with adaptive bi-residual feedback control_
@@ -13,17 +11,17 @@
 
 <a id="toc"></a>
 
-### Contents
+## Contents
 
 - [Algorithm overview](#algorithm)
-  - [Two inverse consistency residuals](#ic-residuals)
-  - [DVF inversion iteration with bi-residual feedback control](#inversion-iteration)
-  - [References](#references)
+	- [Two inverse consistency residuals](#ic-residuals)
+	- [DVF inversion iteration with bi-residual feedback control](#inversion-iteration)
+	- [References](#references)
 - [Software description](#software)
-  - [DVF inversion](#inversion-function)
-  - [Preprocessing & DVF characterization](#preprocessing)
-  - [Post-evaluation](#post-evaluation)
-  - [GPU utilization](#gpu)
+	- [DVF inversion](#inversion-function)
+	- [Preprocessing & DVF characterization](#preprocessing)
+	- [Post-evaluation](#post-evaluation)
+	- [GPU utilization](#gpu)
 - [System environment](#system-reqs)
 - [Contributors](#contributors)
 
@@ -31,7 +29,7 @@
 
 <a id="algorithm"></a>
 
-### Algorithm overview
+## Algorithm overview
 
 This repository contains a set of MATLAB functions for fast and accurate
 inversion of 2D/3D deformation vector fields (DVFs), which are also known
@@ -63,7 +61,7 @@ at all _x_ in the study domain.
 
 <a id="ic-residuals"></a>
 
-#### Two inverse consistency residuals
+### Two inverse consistency residuals
 
 If two DVFs _u_ and _v_ are inverse of each other, they must meet the
 *inverse consistency* (IC) condition. We define the study IC residual,
@@ -89,7 +87,7 @@ control over the feedback for global convergence and local acceleration.
 
 <a id="inversion-iteration"></a>
 
-#### DVF inversion iteration with bi-residual feedback control
+### DVF inversion iteration with bi-residual feedback control
 
 Due to the non-linear nature of the DVF mapping, one resorts to iterative
 procedures for DVF inversion. Our procedure has two stages: preprocessing
@@ -137,7 +135,7 @@ href="#dukephd2018">2</a>].
 
 <a id="references"></a>
 
-#### References
+### References
 
 <a id="medphys2018"></a>[1] A. Dubey&ast;, A.S. Iliopoulos&ast;, X. Sun,
 F.F. Yin, and L. Ren, <a
@@ -153,13 +151,13 @@ Durham, NC, USA, 2018.
 
 <a id="software"></a>
 
-### Software description
+## Software description
 
 
 
 <a id="inversion-function"></a>
 
-#### DVF inversion
+### DVF inversion
 
 The main function is `dvf.inversion`. It takes a forward DVF _u_ and
 returns the inverse DVF _v_. A 3D DVF is represented by a 4D array of size
@@ -169,9 +167,9 @@ displacement vector _u(x)_ at voxel _x = (i,j,k)_. Two-dimensional DVFs are
 represented similarly.
 
 We provide a number of options in function `dvf.inversion`, which are input
-as name-value pairs. These options are for the choice of feedback control
-schemes and iteration parameters. The function documentation details the
-provided options.
+as name-value pairs. These options pertain to the choice of feedback
+control schemes and iteration parameters. The function documentation
+details the provided options.
 
 The memory requirement of `dvf.inversion` is approximately 5 times the
 amount of memory for the input DVF data array.
@@ -185,7 +183,7 @@ percentiles throughout the iteration, per several control schemes.
 
 <a id="preprocessing"></a>
 
-#### Preprocessing & DVF characterization
+### Preprocessing & DVF characterization
 
 Preprocessing functions are invoked automatically by the main function when
 adaptive feedback control is chosen. Functions `dvf.jacobian` and
@@ -203,7 +201,7 @@ determinant map.
 
 <a id="post-evaluation"></a>
 
-#### Post-evaluation
+### Post-evaluation
 
 The `dvf.inversion` function returns post-evaluation measures as optional
 output. The measures are IC residual magnitude percentiles at each
@@ -218,7 +216,7 @@ domain. Function `dvf.maskDomain` calculates the valid domain.
 
 <a id="gpu"></a>
 
-#### GPU utilization
+### GPU utilization
 
 All `dvf.*` functions are GPU-enabled, supported by the MATLAB Parallel
 Computing Toolbox. When a GPU is available, GPU computation is invoked by
@@ -232,7 +230,7 @@ The output data arrays are returned as `gpuArray` objects.
 
 <a id="system-reqs"></a>
 
-### System environment
+## System environment
 
 The repository code was developed and tested on MATLAB R2018b. The
 following functions in MATLAB toolboxes are used:
@@ -249,7 +247,7 @@ GPU computation was tested on an NVIDIA Quantum TXR113-1000R GPU and CUDA
 
 <a id="contributors"></a>
 
-### Contributors
+## Contributors
 
 -   *Design, development, and testing:*  
     Alexandros-Stavros Iliopoulos, Abhishek Dubey, and Xiaobai Sun  
