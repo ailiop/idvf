@@ -180,6 +180,7 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
 %
 %   dvf.jacobian
 %   dvf.eigJacobian
+%   dvf.issingularJacobian
 %   dvf.sizeVf
 %   dvf.feedbackControlVal
 %   dvf.coorDisplace
@@ -197,9 +198,8 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
 %   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, 2018.
 %   DOI: 10.1002/mp.12962.
 %
-%   [2] A. Dubey, A.-S. Iliopoulos, X. Sun, F.-F. Yin, and L. Ren,
-%   "Symmetric completion of deformation registration via bi-residual
-%   inversion." In preparation.
+%   [2] A. Dubey, "Symmetric completion of deformable registration via
+%   bi-residual inversion," PhD thesis, Duke University, Durham, NC, USA.
 %
 %
 % See also      dvf.feedbackControlVal, dvf.icResidual
@@ -235,6 +235,8 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
     fallbackControl   = 0.8;               % mu value at incontrollable points
     prcMidAlternating = [98 50];           % alternating control percentiles
     prcErrorBound     = 99;                % Jacobian norm percentile rank
+    tauSingularJ      = 1e-6;              % Jacobian singularity threshold
+    flagDetJ          = false;             % determinant singularity test?
     valExtrap         = NaN;               % out-of-bounds sentinel value
     
     % parse optional arguments
@@ -281,7 +283,7 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
     [Mu, bndNormJF, szDomScl, MaskCtrl] = ...
         preprocessing( F, opt.control, opt.scale, opt.Mask, windowControl, ...
                        fallbackControl, prcErrorBound, prcMidAlternating, ...
-                       opt.numIteration, dim );
+                       opt.numIteration, tauSingularJ, flagDetJ, dim );
     
     
     %% DVF INVERSION ITERATION
@@ -341,18 +343,20 @@ end
 
 function [Mu, bndJFNorm, szDomScl, MaskCtrl, JF, LambdaF] = ...
         preprocessing (F, control, scales, Mask, wndCtrl, valCtrlFallback, ...
-                       prcErrBnd, prcMidAlt, numIter, dim)
+                       prcErrBnd, prcMidAlt, numIter, tauJ, flagDetJ, dim)
 % IN    F               forward DVF             [NX x NY x NZ x 3]
 %       control         feedback control param. [<numeric> | string]
 %       tauAcc          acceleration threshold  [scalar]
 %       scales          iteration resol. scales [S-vector]
-%       Mask            domain of interest mask [NX x NY] (logical)
+%       Mask            domain of interest mask [NX x NY x NZ] (logical)
 %       wndCtrl         feedback control n/hood [scalar | WX x WY x WZ]
 %       valCtrlFallback control fallback value  [scalar]
 %       prcErrBnd       % for Jacob. norm bound [scalar]
 %       prcMidAlt       alternating control %s  [A-vector]
-%       dim             domain dimensionality   [2 | 3]
 %       numIter         # of iteration steps    [S-vector]
+%       tauJ            J singular test thresh. [scalar]
+%       flagDetJ        det-based singularity?  [boolean]
+%       dim             domain dimensionality   [2 | 3]
 % OUT   Mu              control parameter values[K-vector | NX x NY x NZ]
 %       bndJFNorm       ||JF(x)||_oo bound      [scalar]
 %       szDomScl        scaled domain sizes     [S-cell(3-vector)]
@@ -364,7 +368,9 @@ function [Mu, bndJFNorm, szDomScl, MaskCtrl, JF, LambdaF] = ...
     JF = dvf.jacobian( F );
     
     % non-invertible subdomain
-    MaskNonInv = noninvertibleDomain( JF );
+    MaskNonInv = dvf.issingularJacobian( JF, 'threshold', tauJ, ...
+                                         'explicitDet', flagDetJ, ...
+                                         'Mask', Mask );
     
     % feedback control values set-up
     if ischar( control )                % ---- NTDC-adaptive control
@@ -463,10 +469,8 @@ function [G, k, prctRGIter, prctRFIter] = ...
     % ========== INITIALIZATION
     
     % preallocate space for optional output arrays
-    if flagPrctR
-        prctRGIter = nan( length(prcPop), numIter );
-        prctRFIter = nan( length(prcPop), numIter );
-    end
+    prctRGIter = nan( length(prcPop), numIter );
+    prctRFIter = nan( length(prcPop), numIter );
     
     % initialize full-resolution data if required for IC residual
     % magnitude percentile calculations
@@ -514,10 +518,7 @@ function [G, k, prctRGIter, prctRFIter] = ...
             MaskAcc = all( MaskAcc(Mask), 'all' );
         end
         
-        % neighborhood radius and mask of points with small enough radius of
-        % neighborhood for adaptive local control---the rest of the points
-        % are assigned a "global" control value (over the sub-domain that
-        % covers them)
+        % local neighborhood radius
         if isscalar( radiusMuMax )
             radiusMu = min( [max( RFNorm(MaskCtrl) ), ...
                              max( RGNorm(MaskCtrl) ) * bndNormJF, ...
@@ -809,32 +810,6 @@ end
 
 
 
-%% ==================================================
-%  NON-INVERTIBLE DOMAIN MASK
-
-function MaskNonInv = noninvertibleDomain (JF)
-% IN    JF              deformation Jacobian    [NX x NY x NZ x 3 x 3]
-% OUT   MaskNonInv      noninvertible dom. mask [NX x NY x NZ] (logical)
-    
-    % numerical zero threshold
-    tau = 1e-5;
-    
-    % Jacobian determinant (explicit calculation)
-    % *** WARNING numerically sensitive
-    DetJF = JF(:,:,:,1,1) * (JF(:,:,:,2,2) * JF(:,:,:,3,3) - ...
-                             JF(:,:,:,2,3) * JF(:,:,:,3,2)) - ...
-            JF(:,:,:,1,2) * (JF(:,:,:,2,1) * JF(:,:,:,3,3) - ...
-                             JF(:,:,:,2,3) * JF(:,:,:,3,1)) + ...
-            JF(:,:,:,1,3) * (JF(:,:,:,2,1) * JF(:,:,:,3,2) - ...
-                             JF(:,:,:,2,2) * JF(:,:,:,3,1));
-    
-    % DVF is non-invertible at all points where the Jacobian is singular
-    MaskNonInv = abs(DetJF) <= tau;
-    
-end
-
-
-
 %%------------------------------------------------------------
 %
 % AUTHORS
@@ -843,6 +818,14 @@ end
 %
 % VERSION
 %
-%   1.0.0 - October 31, 2018
+%   1.0.1 - November 07, 2018
+%
+% CHANGELOG
+%
+%   1.0.1 (Nov 07, 2018) - Alexandros
+%       ! fixed error in non-invertible region calculation with 2D DVFs
+%
+%   1.0.0 (Oct 31, 2018) - Alexandros
+%       . initial release
 %
 % ------------------------------------------------------------

@@ -150,9 +150,8 @@ function [Mu, MaskCtrl, P] = feedbackControlVal (Lambda, control, varargin)
 %   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, May 2018.
 %   DOI: 10.1002/mp.12962.
 %
-%   [2] A. Dubey, A.-S. Iliopoulos, X. Sun, F.-F. Yin, and L. Ren,
-%   "Symmetric completion of deformation registration via bi-residual
-%   inversion." In preparation.
+%   [2] A. Dubey, "Symmetric completion of deformable registration via
+%   bi-residual inversion," PhD thesis, Duke University, Durham, NC, USA.
 %
 %
 % See also      dvf.jacobian, dvf.eigJacobian, dvf.inversion
