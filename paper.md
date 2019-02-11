@@ -43,15 +43,15 @@ for DVF inversion with guaranteed convergence.
 
 We use an iterative inversion procedure and employ adaptive bi-residual
 feedback control to achieve global convergence and local acceleration
-[@medphys2018; @phddubey2018].  The inverse DVF estimate and the forward DVF
-must meet the inverse consistency (IC) condition.  We define two IC
+[@medphys2018; @phddubey2018].  The inverse DVF estimate and the forward
+DVF must meet the inverse consistency (IC) condition.  We define two IC
 residuals, which measure the inconsistency between two DVFs in the study
 and reference domains.  The residuals, which are computationally available,
 are related to the unknown inversion error.  We use them as feedback in a
 two-phase iteration.  In the first phase, we modulate the study-domain IC
 residual with adaptive feedback control for guaranteed global convergence,
 under certain mild conditions [@medphys2018].  Once the error is made
-sufficiently small we switch to phase two, where we use the
+sufficiently small, we switch to phase two where we use the
 reference-domain IC residual and achieve locally quadratic convergence
 rate.  Phase transition and integration is enabled by a multi-resolution
 scheme [@phddubey2018].

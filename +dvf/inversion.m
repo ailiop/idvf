@@ -58,6 +58,9 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
 %       * K is the total number of iteration steps
 %       * PRCT_RG_K and PRCT_RF_K contain the 50th, 90th, 95th, 98th,
 %         and 100th percentiles of IC residual magnitudes per step
+%       * Computation of the step-wise residual percentiles will
+%         increase the execution time of INVERSION (especially in the
+%         case of multi-scale iteration steps)
 %
 % OPTIONS
 %
@@ -70,7 +73,7 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
 %       control value scheme [1]:
 %
 %       * 'midrange': local midrange values;
-%       * 'optimal': pointwise optimal values (sensitive to initial guess);
+%       * 'optimal': locally optimal values;
 %       * 'alternating': alternating values (midrange percentiles); or
 %       * 'global-midrange': global midrange value.
 %
@@ -140,8 +143,7 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
 %   stable, linear-rate convergence towards the inverse.
 %
 %   Once the error has been made sufficiently small, ||E_k(x)||_oo <= 1,
-%   the iteration proceeds to the second phase to accelerate convergence
-%   [2]:
+%   the iteration proceeds to phase two, accelerating convergence [2]:
 %
 %       G_k+1(x) = G_k(x) - RF_k(x + G_k(x)) ,
 %
@@ -196,10 +198,12 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
 %   [1] A. Dubey*, A.-S. Iliopoulos*, X. Sun, F.-F. Yin, and L. Ren,
 %   "Iterative inversion of deformation vector fields with feedback
 %   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, 2018.
-%   DOI: 10.1002/mp.12962.
+%   - DOI: 10.1002/mp.12962
+%   - arXiv: 1610.08589 [cs.CV]
 %
 %   [2] A. Dubey, "Symmetric completion of deformable registration via
-%   bi-residual inversion," PhD thesis, Duke University, Durham, NC, USA.
+%   bi-residual inversion," PhD thesis, Duke University, Durham, NC, USA,
+%   2018.
 %
 %
 % See also      dvf.feedbackControlVal, dvf.icResidual
@@ -227,12 +231,13 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
     opt.Mask          = dvf.maskDomain( F );
     
     % static parameters
-    accAsync          = true;              % asunchronous acceleration stage?
+    accAsync          = true;              % asynchronous acceleration stage?
     interp            = 'linear';          % interpolation method
+    flagPrepad        = true;              % prepad spatial domain?
     prcIcMeasure      = [50 90 95 98 100]; % ICR percentile ranks
     icrFullResolution = true;              % calculate ICR in full resolution?
-    windowControl     = 0.05 * min(szDom); % max local-control window size
-    fallbackControl   = 0.8;               % mu value at incontrollable points
+    windowControl     = [];                % max local-neighborhood size
+    fallbackControl   = 0.8;               % mu value at uncontrollable points
     prcMidAlternating = [98 50];           % alternating control percentiles
     prcErrorBound     = 99;                % Jacobian norm percentile rank
     tauSingularJ      = 1e-6;              % Jacobian singularity threshold
@@ -243,13 +248,13 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
     opt = util.parseOptArgs( opt, varargin{:} );
     
     % optional computation flags
-    flag.prctR = (nargout > 3);
+    flagOut.prctR = (nargout > 3);
     
     % disable multi-scale iteration with more than 2 scales
     if length( opt.scale ) > 2
         error( [mfilename ':TooManyScales'], ...
-               ['Multi-scale iteration with more than 2 scales is currently ' ...
-                'disabled.'] );
+               ['Multi-scale iteration with more than 2 scales' ...
+                ' is currently disabled.'] );
     end
     
     
@@ -280,10 +285,30 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
     
     %% PRE-PROCESSING
     
-    [Mu, bndNormJF, szDomScl, MaskCtrl] = ...
-        preprocessing( F, opt.control, opt.scale, opt.Mask, windowControl, ...
+    % differential and spectral pre-computations
+    % *** must precede pre-padding: the MATLAB GRADIENT function uses a
+    %     single-sided difference model at boundary points (vs central
+    %     differences at interior points), hence pre-padding would affect
+    %     boundary values, which in turn could influence the (quasi-)global
+    %     bound on the deformation Jacobian norm which controls transition
+    %     to the implicit-Newton acceleration iteration
+    [Mu, bndNormJF, MaskCtrl] = ...
+        preprocessing( F, opt.control, opt.Mask, windowControl, ...
                        fallbackControl, prcErrorBound, prcMidAlternating, ...
                        opt.numIteration, tauSingularJ, flagDetJ, dim );
+    
+    % pre-pad spatial domain (to avoid missing boundary values when down- and
+    % up-sampling with IMRESIZE in the case of multi-scale computation)
+    if flagPrepad
+        [F, G, opt.Mask, MaskCtrl, Mu, npad] = ...
+            pad( F, G, opt.Mask, MaskCtrl, Mu, min(opt.scale) );
+        szDom = szDom + 2*npad;  % (padded domain size at full resolution)
+    end
+    
+    % turn scale factors to scaled-domain sizes to avoid floor/ceiling issues
+    % when scaling down and then up with IMRESIZE (e.g. 11->6->12)
+    szDomScl = arrayfun( @(s) ceil( szDom * s ), opt.scale, ...
+                         'UniformOutput', false );
     
     
     %% DVF INVERSION ITERATION
@@ -309,10 +334,10 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
                            opt.stopThreshold(s), opt.accThreshold, ...
                            bndNormJF, opt.numIteration(s), interp, ...
                            valExtrap, opt.scale(s)*windowControl, ...
-                           fallbackControl, prcIcMeasure, szDom, accAsync, ...
-                           flag.prctR, icrFullResolution );
+                           fallbackControl, prcIcMeasure, szDom, ...
+                           accAsync, flagOut.prctR, icrFullResolution );
         
-        % scale back to original domain size
+        % scale back to original (padded) domain size
         G = dvf.rescale( G, szDom );
         
         % update "total" iteration counter
@@ -327,13 +352,18 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
     ks = ks + 1;
     
     % final IC residual measures
-    if flag.prctR
+    if flagOut.prctR
         [~, ~, ~, ~, prctRGIter(:,ks), prctRFIter(:,ks)] = ...
             icResidualCalc( F, G, interp, valExtrap, {}, opt.Mask, ...
-                            prcIcMeasure, flag.prctR );
+                            prcIcMeasure, flagOut.prctR );
     end  % if (final IC residual measures)
     
-
+    % de-pad spatial domain
+    if flagPrepad
+        [G, MaskCtrl, Mu] = depad( G, MaskCtrl, Mu, npad );
+    end
+    
+    
 end
 
 
@@ -341,13 +371,12 @@ end
 %% ==================================================
 %  PRE-PROCESSING
 
-function [Mu, bndJFNorm, szDomScl, MaskCtrl, JF, LambdaF] = ...
-        preprocessing (F, control, scales, Mask, wndCtrl, valCtrlFallback, ...
+function [Mu, bndJFNorm, MaskCtrl] = ...
+        preprocessing (F, control, Mask, wndCtrl, valCtrlFallback, ...
                        prcErrBnd, prcMidAlt, numIter, tauJ, flagDetJ, dim)
 % IN    F               forward DVF             [NX x NY x NZ x 3]
 %       control         feedback control param. [<numeric> | string]
 %       tauAcc          acceleration threshold  [scalar]
-%       scales          iteration resol. scales [S-vector]
 %       Mask            domain of interest mask [NX x NY x NZ] (logical)
 %       wndCtrl         feedback control n/hood [scalar | WX x WY x WZ]
 %       valCtrlFallback control fallback value  [scalar]
@@ -359,11 +388,9 @@ function [Mu, bndJFNorm, szDomScl, MaskCtrl, JF, LambdaF] = ...
 %       dim             domain dimensionality   [2 | 3]
 % OUT   Mu              control parameter values[K-vector | NX x NY x NZ]
 %       bndJFNorm       ||JF(x)||_oo bound      [scalar]
-%       szDomScl        scaled domain sizes     [S-cell(3-vector)]
 %       MaskCtrl        controllable domain mask[NX x NY x NZ] (logical)
-%       JF              deformation Jacobian    [NX x NY x NZ x 3 x 3]
-%       LambdaF         Jacobian eigenvalues    [NX x NY x NZ x 3]
-    
+%       npad            
+
     % forward deformation Jacobian
     JF = dvf.jacobian( F );
     
@@ -381,7 +408,7 @@ function [Mu, bndJFNorm, szDomScl, MaskCtrl, JF, LambdaF] = ...
         % local control neighborhood (if adaptive control neighborhoods are used,
         % set the trivial neighborhood---local calculations will be done
         % during the iteration rather than preprocessing)
-        if isscalar( wndCtrl )
+        if isscalar( wndCtrl ) || isempty( wndCtrl )
             wndCtrl = 1;
         end
         
@@ -402,33 +429,27 @@ function [Mu, bndJFNorm, szDomScl, MaskCtrl, JF, LambdaF] = ...
         
     end  % if (adaptive/prefixed control?)
     
-    % non-invertible & incontrollable domain warning
-    if any( MaskNonInv, 'all' )
+    % non-invertible & uncontrollable domain warning
+    if any( MaskNonInv & Mask, 'all' )
         warning( [mfilename ':NonInvertibleRegion'], ...
                  'Input DVF is non-invertible at %d/%d points', ...
                  nnz(MaskNonInv), numel(MaskNonInv) );
     end
-    if any( ~MaskCtrl, 'all' )
-        warning( [mfilename ':IncontrollableRegion'], ...
-                 'The inversion error is incontrollable at %d/%d points', ...
+    if any( ~MaskCtrl & Mask, 'all' )
+        warning( [mfilename ':UncontrollableRegion'], ...
+                 'The inversion error is uncontrollable at %d/%d points', ...
                  nnz(~MaskCtrl), numel(MaskCtrl) );
     end
     MaskCtrl = MaskCtrl & ~MaskNonInv;
     
     % in case of constant/alternating control values, replicate for convenience
     if isvector( Mu )
-        Mu = repmat( Mu(:), [ceil( max(numIter) * length(Mu) ), 1] );
+        Mu = repmat( Mu(:), [ceil( max(numIter) / length(Mu) ), 1] );
     end
     
     % "soft" upper bound of Jacobian oo-norm over controllable/masked domain
     bndJFNorm = max( sum( abs(JF), dim+2 ), [], dim+1 );
     bndJFNorm = prctile( bndJFNorm(MaskCtrl), prcErrBnd );
-    
-    % turn scale factors to scaled-domain sizes to avoid floor/ceiling issues
-    % when scaling down and then up with IMRESIZE (e.g. 11->6->12)
-    [szDom, ~] = dvf.sizeVf( F );
-    szDomScl   = arrayfun( @(s) ceil( szDom * s ), scales, ...
-                           'UniformOutput', false );
     
 end
 
@@ -519,7 +540,7 @@ function [G, k, prctRGIter, prctRFIter] = ...
         end
         
         % local neighborhood radius
-        if isscalar( radiusMuMax )
+        if isscalar( radiusMuMax ) || isempty( radiusMuMax )
             radiusMu = min( [max( RFNorm(MaskCtrl) ), ...
                              max( RGNorm(MaskCtrl) ) * bndNormJF, ...
                              radiusMuMax] );
@@ -644,11 +665,12 @@ function [RG, RF, RGNorm, RFNorm, prctRG, prctRF] = ...
     % IC residual:  RF(y) = F(y) + G(y + F(y))          [y = x + G(x)]
     %                     = (F(x+G(x)) + G(x)) + G(x+G(x)+F(x+G(x))) - G(x)
     %                     = RG(x) + G(x + RG(x)) - G(x)
-    % *** RF(x + G(x)) can be numerically unstable (in part because it
-    %     involves non-small deformations when RF is used as feedback in
-    %     the implicit Newton iteration), plus it is inefficient compared
-    %     to the formulation below (involving an additional interpolation
-    %     step)
+    % *** direct calculation of RF(x + G(x)) is relatively unstable
+    %     numerically (in part because it involves non-small deformations
+    %     when RF is used as feedback in the implicit Newton iteration); it
+    %     is also inefficient and very resolution-limited, involving an
+    %     additional interpolation step compared to the equivalent
+    %     formulation in terms of RG(x)
     gridRG      = cell( size(gridG) );
     [gridRG{:}] = dvf.coorDisplace( RG );
     RF          = RG + (dvf.interpnVf( G, gridRG, interp, extrap ) - G);
@@ -664,6 +686,55 @@ function [RG, RF, RGNorm, RFNorm, prctRG, prctRF] = ...
     % deal with potential NaN/Inf values (out-of-bounds interpolation)
     [RG, RGNorm] = sanitizeIcResidual( RG, RGNorm );
     [RF, RFNorm] = sanitizeIcResidual( RF, RFNorm );
+    
+end
+
+
+
+%% ==================================================
+%  IC RESIDUAL MAGNITUDE PERCENTILES
+
+function prctR = icrMgnPercentiles (R, Mask, prcPop, flag)
+% IN    R               IC residual             [NX x NY x NZ x 3]
+%       Mask            spatial domain mask     [NX x NY x NZ] (logical)
+%       prcPop          ICR percentile ranks    [P-vector]
+%       flag            compute ICR percentiles?[boolean]
+% OUT   prctR           ICR magnitude prctiles  [P-vector]
+    
+    if flag                             % ---- compute ICR percentiles
+        dim       = ndims( Mask );
+        RMgn      = sqrt( sum( R.^2, dim+1 ) );
+        [~, RMgn] = sanitizeIcResidual( R, RMgn );
+        prctR     = prctile( RMgn(Mask), prcPop, 'all' );
+    else                                % ---- do not compute anything
+        prctR = NaN;
+    end  % if
+    
+end
+
+
+
+%% ==================================================
+%  SANITIZE NAN/INF INTERPOLATION VALUES IN IC RESIDUAL
+
+function [R, RMgn] = sanitizeIcResidual (R, RMgn)
+%       R               IC residual vectorfield [NX x NY x NZ x 3]
+%       RMgn            IC residual magnitudes  [NX x NY x NZ]
+    
+    % domain dimensionality
+    dim = ndims( RMgn );
+    
+    % spatial mask of "bad" interpolation values (NaN/Inf)
+    MaskBad = isnan( RMgn ) | isinf( RMgn );
+    
+    % set invalid IC residual magnitudes equal to max IC residual (in
+    % order to not skew statistics)
+    RMgn(MaskBad) = max( RMgn(~MaskBad) );
+    
+    % set invalid IC residual vectors equal to 0 (no feedback control)
+    R = reshape( R, [numel(MaskBad), dim] );
+    R(MaskBad,:) = 0;
+    R = reshape( R, [size(MaskBad), dim] );
     
 end
 
@@ -762,49 +833,68 @@ end
 
 
 %% ==================================================
-%  SANITIZE NAN/INF INTERPOLATION VALUES IN IC RESIDUAL
+%  PAD SPATIAL DOMAIN
 
-function [R, RMgn] = sanitizeIcResidual (R, RMgn)
-%       R               IC residual vectorfield [NX x NY x NZ x 3]
-%       RMgn            IC residual magnitudes  [NX x NY x NZ]
+function [FPad, GPad, MaskDomPad, MaskCtrlPad, MuPad, npad] = ...
+        pad (F, G, MaskDom, MaskCtrl, Mu, minScale)
+% IN    F               forward DVF             [NX x NY x NZ x 3]
+%       G               inverse DVF estimate    [NX x NY x NZ x 3]
+%       MaskDom         valid domain mask       [NX x NY x NZ] (logical)
+%       MaskCtrl        controllable domain mask[NX x NY x NZ] (logical)
+%       Mu              feedback control values [K-vector | NX x NY x NZ]
+%       minScale        min domain scaling      [scalar]
+% OUT   FPad            padded forward DVF      [PX x PY x PZ x 3]
+%       GPad            padded inverse DVF      [PX x PY x PZ x 3]
+%       MaskDomPad      padded valid domain     [PX x PY x PZ] (logical)
+%       MaskCtrlPad     padded controllable dom.[PX x PY x PZ] (logical)
+%       MuPad           padded control values   [K-vector | PX x PY x PZ]
+%       npad            dimension-wise pad size [(PX-NX) (PY-NY) (PZ-NZ)]/2
     
-    % domain dimensionality
-    dim = ndims( RMgn );
+    % scaling-adpative pad size (to avoid missing boundary values when down-
+    % and up-sampling with IMRESIZE in the case of multi-scale computation)
+    [~, dim] = dvf.sizeVf( F );
+    npad     = repmat( ceil( 1 / minScale ), [1 dim] );
     
-    % spatial mask of "bad" interpolation values (NaN/Inf)
-    MaskBad = isnan( RMgn ) | isinf( RMgn );
-    
-    % set invalid IC residual magnitudes equal to max IC residual (in
-    % order to not skew statistics)
-    RMgn(MaskBad) = max( RMgn(~MaskBad) );
-    
-    % set invalid IC residual vectors equal to 0 (no feedback control)
-    R = reshape( R, [numel(MaskBad), dim] );
-    R(MaskBad,:) = 0;
-    R = reshape( R, [size(MaskBad), dim] );
+    % pad spatial domain in relevant vector- and scalar-field arrays
+    FPad = padarray( F, [npad 0], 0, 'both' );
+    GPad = padarray( G, [npad 0], 0, 'both' );
+    MaskDomPad  = padarray( MaskDom , npad, false, 'both' );
+    MaskCtrlPad = padarray( MaskCtrl, npad, false, 'both' );
+    if ~isvector( Mu )
+        MuPad = padarray( Mu, npad, 0, 'both' );
+    else
+        MuPad = Mu;
+    end
     
 end
 
 
 
 %% ==================================================
-%  IC RESIDUAL MAGNITUDE PERCENTILES
+%  DE-PAD SPATIAL DOMAIN
 
-function prctR = icrMgnPercentiles (R, Mask, prcPop, flag)
-% IN    R               IC residual             [NX x NY x NZ x 3]
-%       Mask            spatial domain mask     [NX x NY x NZ] (logical)
-%       prcPop          ICR percentile ranks    [P-vector]
-%       flag            compute ICR percentiles?[boolean]
-% OUT   prctR           ICR magnitude prctiles  [P-vector]
+function [GDepad, MaskDepad, MuDepad] = depad (G, Mask, Mu, npad)
+% IN    G               inverse DVF estimate    [PX x PY x PZ x 3]
+%       Mask            domain mask             [PX x PY x PZ] (logical)
+%       Mu              feedback control values [K-vector | PX x PY x PZ]
+%       npad            dimension-wise pad size [(PX-NX) (PY-NY) (PZ-NZ)]/2
+% OUT   GDepad          de-padded inverse DVF   [NX x NY x NZ x 3]
+%       MaskDepad       de-padded domain mask   [NX x NY x NZ] (logical)
+%       MuDepad         de-padded control values[K-vector | NX x NY x NZ]
+
+    % dimension-wise internal (de-padded) spatial domain array indices
+    [szDomPad, ~] = dvf.sizeVf( G );
+    iDepad        = arrayfun( @(p,s) (1+p : s-p), npad, szDomPad, ...
+                              'UniformOutput', false );
     
-    if flag                             % ---- compute ICR percentiles
-        dim       = ndims( Mask );
-        RMgn      = sqrt( sum( R.^2, dim+1 ) );
-        [~, RMgn] = sanitizeIcResidual( R, RMgn );
-        prctR     = prctile( RMgn(Mask), prcPop, 'all' );
-    else                                % ---- do not compute anything
-        prctR = NaN;
-    end  % if
+    % de-pad spatial domain in relevant vector- and scalar-field arrays
+    GDepad    = G(iDepad{:},:);
+    MaskDepad = Mask(iDepad{:});
+    if ~isvector( Mu )
+        MuDepad = Mu(iDepad{:});
+    else
+        MuDepad = Mu;
+    end
     
 end
 
@@ -816,16 +906,22 @@ end
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
-%   1.0.1 - November 07, 2018
+%   1.0.2 - Ferbuary 11, 2019
 %
 % CHANGELOG
+%
+%   1.0.2 (Feb 11, 2019) - Alexandros
+%       ! removed upper limit on neighborhood size for local
+%         control-pararameter value search
+%       + added scaling-factor-dependent pre-padding of spatial domain
+%         to obviate boundary interpolation artifacts due to resizing
 %
 %   1.0.1 (Nov 07, 2018) - Alexandros
 %       ! fixed error in non-invertible region calculation with 2D DVFs
 %
 %   1.0.0 (Oct 31, 2018) - Alexandros
-%       . initial release
+%       . initial version
 %
 % ------------------------------------------------------------

@@ -1,6 +1,7 @@
-% demo_inversion_2d.m
+% demo_inversion_3d_z0.m
 %
-% 2D DVF inversion [1,2] demo script.
+% 3D DVF inversion [1,2] demo script (3D-expanded 2D DVF; no displacement
+% along Z-axis).
 %
 % ----------------------------------------------------------------------
 %
@@ -50,6 +51,13 @@ ioData     = matfile( pathData );
 F          = ioData.F;
 [szDom, ~] = dvf.sizeVf( F );
 
+% 2D-to-3D DVF embedding (illustration with zero Z-axis displacement)
+zdim  = 15;
+F     = repmat( F, [1 1 1 zdim] );          % (NX x NY x 2 x NZ)
+F     = permute( F, [1 2 4 3] );            % (NX x NY x NZ x 2)
+F     = cat( 4, F, zeros( [szDom zdim] ) ); % (NX x NY x NZ x 3)
+szDom = [szDom zdim];
+
 % inversion parameters
 opt.control       = 'midrange';
 opt.scale         = 1;
@@ -94,6 +102,7 @@ clrIcCurve    = [0.8650 0.8110 0.4330;  % yellow
                  0.9047 0.1918 0.1988]; % red
 
 % IC residual maps visualization options
+zIdx      = (zdim + 1) / 2;             % axial slice index
 climIcMgn = [0 1];                      % color-axis limits
 
 
@@ -102,11 +111,11 @@ climIcMgn = [0 1];                      % color-axis limits
 fprintf( '\n***** BEGIN (%s) *****\n\n', mfilename );
 
 
-%% ==================== VISUALIZATION: REFERENCE & DEFORMED IMAGES
+%% ==================== VISUALIZATION: REFERENCE & STUDY IMAGES
 
-fprintf( '...visualizing synthetic reference and deformed images...\n' );
+fprintf( '...visualizing synthetic reference and study images...\n' );
 
-IRef = util.imageGridSmooth( szDom, [15 15] );
+IRef = util.imageGridSmooth( [szDom zdim], [15 15 5] );
 IStd = dvf.imdeform( IRef, F );
 
 hFig      = vis.mfigure;
@@ -114,18 +123,18 @@ hFig.Name = 'reference and study (deformed) images';
 
 % reference image
 subplot( 1, 2, 1 )
-imagesc( IRef.' )
+imagesc( IRef(:,:,zIdx).' )
 axis image
 colormap( gray )
-title( 'reference image' )
+title( {'reference image', sprintf( '(axial slice z = %d)', zIdx )} )
 drawnow
 
 % study (deformed) image
 subplot( 1, 2, 2 )
-imagesc( IStd.' )
+imagesc( IStd(:,:,zIdx).' )
 axis image
 colormap( gray )
-title( 'deformed image' )
+title( {'study image', sprintf( '(axial slice z = %d)', zIdx )} )
 drawnow
 
 
@@ -140,29 +149,29 @@ hFig.Name = 'spectral NTDC measures of forward DVF';
 
 % control index
 subplot( 1, 3, 1 )
-imagesc( CtrlIdx.' )
+imagesc( CtrlIdx(:,:,zIdx).' )
 axis image
 colormap( jet )
 colorbar
-title( 'algebraic control index' );
+title( {'algebraic control index', sprintf( '(axial slice z = %d)', zIdx )} );
 drawnow
 
 % NTDC spectral radius
 subplot( 1, 3, 2 )
-imagesc( Rho.' )
+imagesc( Rho(:,:,zIdx).' )
 axis image
 colormap( jet )
 colorbar
-title( 'NTDC spectral radius' );
+title( {'NTDC spectral radius', sprintf( '(axial slice z = %d)', zIdx )} );
 drawnow
 
 % determinant map
 subplot( 1, 3, 3 )
-imagesc( Det.' )
+imagesc( Det(:,:,zIdx).' )
 axis image
 colormap( jet )
 colorbar
-title( 'determinant map' );
+title( {'determinant map', sprintf( '(axial slice z = %d)', zIdx )} );
 drawnow
 
 
@@ -171,7 +180,6 @@ drawnow
 fprintf( '...computing inverse with %d iteration schemes...\n', length(opt) );
 
 G      = cell( size(opt) );
-Mu     = cell( size(opt) );
 prctRG = cell( size(opt) );
 prctRF = cell( size(opt) );
 RG     = cell( size(opt) );
@@ -179,7 +187,8 @@ RF     = cell( size(opt) );
 
 for i = 1 : length(opt)
     fprintf( '   - scheme #%d (%s)...\n', i, lgnd{i} );
-    [G{i}, Mu{i}, ~, prctRG{i}, prctRF{i}] = dvf.inversion( F, opt(i) );
+    opt(i).control = dvf.feedbackControlVal( Lambda, opt(i).control );
+    [G{i}, ~, ~, prctRG{i}, prctRF{i}] = dvf.inversion( F, opt(i) );
     RG{i} = dvf.icResidual( G{i}, F );
     RF{i} = dvf.icResidual( F, G{i} );
 end
@@ -231,7 +240,7 @@ for p = 1 : numPrct                     % ---- each percentile
     hold on
     for i = 1 : length(opt)
         plot( kstep{i}, prctRF{i}(p,:), argVisIcCurve{:}, ...
-              'Color', clrIcCurve(i,:)  );
+              'Color', clrIcCurve(i,:) );
     end
     ylabel( sprintf( 'r_k[%d%%]', prcIcMeasure(p) ) );
     xlabel( 'amortized iteration step (k)' )
@@ -248,21 +257,22 @@ fprintf( '...visualizing final IC residual maps...\n' );
 fprintf( '   - white pixels indicate NaN (out-of-bounds) values\n' );
 
 % calculate point-wise IC residual magnitudes
-RGMgn = cellfun( @(r) sqrt( sum( r.^2, 3 ) ), RG, 'UniformOutput', false );
-RFMgn = cellfun( @(r) sqrt( sum( r.^2, 3 ) ), RF, 'UniformOutput', false );
+RGMgn = cellfun( @(r) sqrt( sum( r.^2, 4 ) ), RG, 'UniformOutput', false );
+RFMgn = cellfun( @(r) sqrt( sum( r.^2, 4 ) ), RF, 'UniformOutput', false );
 
 % study IC residuals
 hFig      = vis.mfigure;
 hFig.Name = 'study IC residual maps';
 for i = 1 : length(opt)
     subplot( 2, 4, i )
-    pcolor( RGMgn{i}.' )
+    pcolor( RGMgn{i}(:,:,zIdx).' )
     axis image
     shading flat
     colormap jet
     caxis( climIcMgn )
     colorbar
-    title( {lgnd{i}, 'study IC residuals s(x)'} )
+    title( {sprintf( 'study IC residuals (%s)', lgnd{i} ), ...
+            sprintf( '(axial slice z = %d)', zIdx )} )
     drawnow
 end
 
@@ -271,13 +281,14 @@ hFig      = vis.mfigure;
 hFig.Name = 'reference IC residual maps';
 for i = 1 : length(opt)
     subplot( 2, 4, i )
-    pcolor( RFMgn{i}.' )
+    pcolor( RFMgn{i}(:,:,zIdx).' )
     axis image
     shading flat
     colormap jet
     caxis( climIcMgn )
     colorbar
-    title( {lgnd{i}, 'reference IC residuals r(x)'} )
+    title( {sprintf( 'reference IC residuals (%s)', lgnd{i} ), ...
+            sprintf( '(axial slice z = %d)', zIdx )} )
     drawnow
 end
 
@@ -305,7 +316,7 @@ hFig      = vis.mfigure;
 hFig.Name = 'image-space errors in reference image recovery';
 for i = 1 : length(opt)
     subplot( 2, 4, i )
-    pcolor( (IRef - IRefRec{i}).' );
+    pcolor( (IRef(:,:,zIdx) - IRefRec{i}(:,:,zIdx)).' );
     axis image
     shading flat
     caxis( [-1, +1] )
@@ -314,7 +325,6 @@ for i = 1 : length(opt)
     title( {lgnd{i}, 'I_{ref}(x) - I_{ref}(x+s(x))'} )
     drawnow
 end
-
 
 
 %% ==================== (END)

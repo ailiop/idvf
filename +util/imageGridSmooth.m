@@ -1,6 +1,6 @@
-function I = imageGrid (sizeI, width, bufferBnd)
+function I = imageGridSmooth (sizeI, width, bufferBnd)
 %
-% IMAGEGRID - Grid-like 2D image generation
+% IMAGEGRIDSMOOTH - Smooth grid-like image generation
 %
 % ----------------------------------------------------------------------
 %
@@ -23,30 +23,30 @@ function I = imageGrid (sizeI, width, bufferBnd)
 %   
 % SYNTAX
 %
-%   I = IMAGEGRID( SIZE )
-%   I = IMAGEGRID( SIZE, WIDTH )
-%   I = IMAGEGRID( SIZE, WIDTH, BUFFER )
+%   I = IMAGEGRIDSMOOTH( SIZE )
+%   I = IMAGEGRIDSMOOTH( SIZE, WIDTH )
+%   I = IMAGEGRIDSMOOTH( SIZE, WIDTH, BUFFER )
 %
 % INPUT
 %
 %   SIZE        Size of output image            [D-vector]
 %               [D1, D2, ...]
-%   WIDTH       Checkered-pattern strips width  [D-vector|scalar]
-%               {default: SIZE/21}
+%   WIDTH       Grid spacing (sine half-period) [D-vector|scalar]
+%               {default: SIZE/10}
 %   BUFFER      Dimension-wise buffer from      [D-vector|scalar]
-%               checkered-pattern to boundary
+%               image to boundary
 %               {default: 0}
 %
 % OUTPUT
 %
-%   I           Checkered-pattern image         [D1-by-D2-by-...]
+%   I           Smooth-grid image               [D1-by-D2-by-...]
 %
 % DESCRIPTION
 %
-%   I = IMAGEGRID(SIZE,WIDTH,BUFFER) generates an image with a
-%   D-dimensional checkered pattern as per dimension-wise specified strip
-%   widths. The image intensities are normalized such that they are K/D,
-%   where K is the number of coinciding strips (for each pixel).
+%   I = IMAGEGRIDSMOOTH(SIZE,WIDTH,BUFFER) generates an image with a
+%   D-dimensional smooth grid-like pattern.  The image is a Kronecker
+%   product of 1-dimensional sinusoids with specified half-periods.  The
+%   image intensities are normalized to [0,1] range.
 %
 %   If BUFFER is non-zero for the d-th dimension, then BUFFER(d) points are
 %   masked off on both ends of the d-th axis.
@@ -59,7 +59,7 @@ function I = imageGrid (sizeI, width, bufferBnd)
     %% DEFAULTS
     
     if ~exist( 'width', 'var' ) || isempty( width )
-        width = sizeI / 21;
+        width = sizeI / 10;
     end
     if~exist( 'bufferBnd', 'var' ) || isempty( bufferBnd )
         bufferBnd = 0;
@@ -71,8 +71,7 @@ function I = imageGrid (sizeI, width, bufferBnd)
     % number of dimensions
     nDim = length( sizeI );
     
-    % if single strip/buffer width was input, use the same for all
-    % dimensions
+    % if single width/buffer width was input, use the same for all dimensions
     if isscalar( width )
         width = repmat( width, [nDim, 1] );
     end
@@ -86,10 +85,10 @@ function I = imageGrid (sizeI, width, bufferBnd)
     bufferBnd = reshape( bufferBnd, [1, nDim] );
     
     
-    %% DIMENSION-WISE (1D) CHECKERED PATTERNS AND BUFFER-MASKS
+    %% DIMENSION-WISE (1D) IMAGE PROFILE AND BUFFER-MASKS
     
-    chk1d = arrayfun( @(w,d,sz) ...
-                      reshape( (mod( 0:(sz-1), 2*w ) < w), ...
+    img1d = arrayfun( @(w,d,sz) ...
+                      reshape( sin( pi*w * linspace(0,1,sz) ), ...
                                [ones(1,d-1), sz, 1] ), ...
                       width, (1:nDim), sizeI, ...
                       'UniformOutput', false );
@@ -101,15 +100,15 @@ function I = imageGrid (sizeI, width, bufferBnd)
                        'UniformOutput', false );
     
     
-    %% CHECKERED-PATTERN IMAGE (WITH BUFFER-ZONES)
+    %% MULTI-DIMENSIONAL IMAGE (WITH BUFFER-ZONES)
     
-    % initialize checkered-pattern image and buffer-zone mask
-    I = chk1d{1};
+    % initialize image and buffer-zone mask
+    I = img1d{1};
     M = mask1d{1};
     
-    % Kronecker summation of all remaining 1D patterns
+    % Kronecker product of all remaining 1D profiles
     for d = 2 : nDim
-        I = I  + chk1d{d};
+        I = I .* img1d{d};
         M = M .* mask1d{d};
     end
     
@@ -127,9 +126,21 @@ end
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
-%   1.0.0 - October 31, 2018
+%   1.0.2 - February 11, 2019
+%
+% CHANGELOG
+%
+%   1.0.2 (Feb 11, 2019) - Alexandros
+%       . changed 1D image profile from binary-valued (sharp edges) to
+%         sinusoidal (smooth)
+%       . multiplicative composition of 1D image profiles into ND image
+%         (used to be additive)
+%       . renamed function: imageGrid --> imageGridSmooth
+%
+%   1.0.0 (Oct 31, 2018) - Alexandros
+%       . initial release
 %
 % ------------------------------------------------------------
 

@@ -116,9 +116,9 @@ function [Mu, MaskCtrl, P] = feedbackControlVal (Lambda, control, varargin)
 %       MU(x) = 1 - 2 / (Lmax(x) + Lmin(x))                     [case R]
 %
 %       where Lc and Lr refer to the complex and real eigenvalues,
-%       respectively, at some point.  Case R means all eigenvalues at x are
-%       real, while case C means that two eigenvalues at x form a complex
-%       conjugate pair.
+%       respectively, at some point x.  Case R means all eigenvalues at x
+%       are real, while case C means that two eigenvalues at x form a
+%       complex conjugate pair.
 %
 %   * 'alternating'
 %
@@ -147,11 +147,13 @@ function [Mu, MaskCtrl, P] = feedbackControlVal (Lambda, control, varargin)
 %
 %   [1] A. Dubey*, A.-S. Iliopoulos*, X. Sun, F.-F. Yin, and L. Ren,
 %   "Iterative inversion of deformation vector fields with feedback
-%   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, May 2018.
-%   DOI: 10.1002/mp.12962.
+%   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, 2018.
+%   - DOI: 10.1002/mp.12962
+%   - arXiv: 1610.08589 [cs.CV]
 %
 %   [2] A. Dubey, "Symmetric completion of deformable registration via
-%   bi-residual inversion," PhD thesis, Duke University, Durham, NC, USA.
+%   bi-residual inversion," PhD thesis, Duke University, Durham, NC, USA,
+%   2018.
 %
 %
 % See also      dvf.jacobian, dvf.eigJacobian, dvf.inversion
@@ -322,25 +324,33 @@ function Mu = optimalMu (Lambda, MaskCtrl, val, szDom, dim)
     MaskCtrl = reshape( MaskCtrl, [prod(szDom), 1] );
     Mu       = zeros( [prod(szDom), 1], 'like', real(Lambda) );
     
+    % real & complex eigenvalue masks (within controllable region)
+    MaskReal    = (max( abs(imag(Lambda)), [], 2 ) < tauZero) & MaskCtrl;
+    MaskComplex = ~MaskReal & MaskCtrl;
+    
     % 2D/3D DVF
     switch dim
         
       case 2                            % ======== 2D (real/conjugate pair)
         
-        Mu(MaskCtrl) = 1 - 2 ./ sum( real(Lambda(MaskCtrl,:)), 2 );
+        % ----- REAL EIGENVALUES (CASE R)
+        
+        Mu(MaskReal) = 1 - 2 ./ sum( real(Lambda(MaskReal,:)), 2 );
+        
+        % ----- COMPLEX EIGENVALUES (CASE C)
+        
+        % (complex eigenvalues always appear as conjugate pairs in 2D)
+        Mu(MaskComplex) = 1 - (real(Lambda(MaskComplex,1)) ./ ...
+                               abs(Lambda(MaskComplex,1)).^2);
         
       case 3                            % ======== 3D (real & complex lambda)
         
         % ----- REAL EIGENVALUES (CASE R)
         
-        MaskReal     = (max( abs(imag(Lambda)), [], 2 ) < tauZero) & MaskCtrl;
         Mu(MaskReal) = 1 - 2 ./ (max( real(Lambda(MaskReal,:)), [], 2 ) + ...
                                  min( real(Lambda(MaskReal,:)), [], 2 ));
         
         % ----- COMPLEX EIGENVALUES (CASE C)
-        
-        % complex-eigenvalues domain mask
-        MaskComplex = ~MaskReal & MaskCtrl;
         
         % row-column indices of real and (upper halfspace) complex eigenvalues
         [~, jR] = min( abs(imag(Lambda(MaskComplex,:))), [], 2 );% real col-idx
@@ -388,8 +398,17 @@ end
 %   Abhishek Dubey                      abhisdub@cs.duke.edu
 %   Xiaobai Sun                         xiaobai@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
-%   1.0.0 - October 31, 2018
+%   1.0.2 - February 11, 2019
+%
+% CHANGELOG
+%
+%   1.0.2 (Feb 11, 2019) - Alexandros
+%       ! fixed bug with pointwise optimal control scheme ('optimal')
+%         whereby the complex-eigenvalues case was not handled for 2D DVFs
+%
+%   1.0.0 (Oct 31, 2018)
+%       . initial release
 %
 % ------------------------------------------------------------

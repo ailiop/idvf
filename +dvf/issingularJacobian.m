@@ -115,7 +115,7 @@ end
 %  2D/3D DETERMINANT (EXPLICIT CALCULATION)
 
 function detJ = detJacobian (J)
-% IN    J               Jacobian matrices       [N x D x D]
+% IN    J               Jacobian matrices       [N x D x D]     (D = 2,3)
 % OUT   detJ            Jacobian determinants   [N x 1]
     
     switch size(J,3)
@@ -151,7 +151,7 @@ end
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
 %   1.0.1 - November 7, 2018
 %

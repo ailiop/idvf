@@ -1,4 +1,4 @@
-function Idfm = imdeform (Iref, DVF, mapping, interpMethod, extrapVal)
+function IDfm = imdeform (IRef, DVF, mapping, interpMethod, extrapVal)
 %
 % IMDEFORM - 2D/3D image deformation
 %
@@ -30,7 +30,7 @@ function Idfm = imdeform (Iref, DVF, mapping, interpMethod, extrapVal)
 %
 % INPUT
 %
-%   IREF        Reference (to-be-deformed) 3D image     [NX x NY x NZ]
+%   IREF        Reference (to-be-deformed) image        [NX x NY x NZ]
 %   DVF         Deformation vector field                [NX x NY x NZ x 3]
 %               (displacement measured in pixels)
 %   MAPPING     Deformation mapping                     [string]
@@ -45,9 +45,9 @@ function Idfm = imdeform (Iref, DVF, mapping, interpMethod, extrapVal)
 %
 % OUTPUT
 %
-%   IDFM        Deformed 3D image                       [NX x NY x NZ]
+%   IDFM        Deformed image                          [NX x NY x NZ]
 %
-% NOTES
+% NOTE
 %
 %   The image/vector field array sizes in the documentation refer to the
 %   3D case.  In the 2D case, the sizes are amended accordingly:
@@ -60,19 +60,20 @@ function Idfm = imdeform (Iref, DVF, mapping, interpMethod, extrapVal)
 %   IDFM = IMDEFORM(IREF,DVF,'bwd') deforms the input reference 3D image,
 %   such that
 %
-%               IDFM(x) = IREF(x + DVF(x))
+%               IDFM(x) = IREF(x + DVF(x)) ,
 %
-%   for all x in the image domain. The above model is referred to as the
-%   backward-mapping deformation model.
+%   for all x in the deformed-image domain. The above model is referred to
+%   as the backward-mapping deformation model.
 %
 %   IDFM = IMDEFORM(IREF,DVF,'fwd') applies the forward-mapping deformation
 %   model, instead:
 %
-%               IDFM(x + DVF(x)) = IREF(x) .
+%               IDFM(x + DVF(x)) = IREF(x) ,
 %
-%   This tends to be slower, as it is based on scattered data
-%   interpolation, rather than gridded data interpolation (which is the
-%   case for backward-mapping).
+%   for all x in the reference-image domain. This is much slower,
+%   especially for large images, as it is based on scattered data
+%   interpolation.  Instead, the backward-mapping model is based on gridded
+%   data interpolation.
 %
 %   IDFM = IMDEFORM(IREF,DVF,...,MINTERP) also specifies the interpolation
 %   method to be used when regridding the deformed image onto the regular
@@ -116,7 +117,7 @@ function Idfm = imdeform (Iref, DVF, mapping, interpMethod, extrapVal)
     % spatial domain size and dimensionality
     [szDom, dim] = dvf.sizeVf( DVF );
     
-    % ensure 2D/3D case
+    % ensure 2D/3D case (the code actually supports ND image deformation)
     if ~( ((dim == 3) && (length(szDom) == 3)) || ...
           ((dim == 2) && (length(szDom) == 2)) )
         error( [mfilename ':InvalidDimensionality'], ...
@@ -142,12 +143,12 @@ function Idfm = imdeform (Iref, DVF, mapping, interpMethod, extrapVal)
         
       case {'bwd','backward'}   % ----- BACKWARD MAPPING
         
-        Idfm = interpn( Iref, gridDfm{:}, interpMethod, NaN );
+        IDfm = interpn( IRef, gridDfm{:}, interpMethod, NaN );
         
       case {'fwd','forward'}    % ----- FORWARD MAPPING
         
         gridDfm = cellfun( @(x) x(:), gridDfm, 'UniformOutput', false );
-        Idfm    = griddata( gridDfm{:}, Iref(:), gridRef{:}, interpMethod );
+        IDfm    = griddata( gridDfm{:}, IRef(:), gridRef{:}, interpMethod );
         
       otherwise                 % ----- ERROR (UNKNOWN MAPPING)
         
@@ -157,7 +158,7 @@ function Idfm = imdeform (Iref, DVF, mapping, interpMethod, extrapVal)
     end  % switch (deformation mapping)
     
     % set any out-of-domain (NaN) values to 0
-    Idfm( isnan(Idfm) ) = extrapVal;
+    IDfm( isnan(IDfm) ) = extrapVal;
     
     
 end
@@ -171,8 +172,16 @@ end
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
-%   1.0.0 - October 31, 2018
+%   1.0.2 - Ferbuary 11, 2019
+%
+% CHANGELOG
+%
+%   1.0.2 (Feb 11, 2019) - Alexandros
+%       . documentation clean-up
+%
+%   1.0.0 (Oct 31, 2018) - Alexandros
+%       . initial release
 %
 % ------------------------------------------------------------

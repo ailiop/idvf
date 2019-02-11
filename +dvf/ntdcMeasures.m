@@ -49,10 +49,12 @@ function [CtrlIdx, Rho, Det, Lambda] = ntdcMeasures (F)
 %   deformation Jacobian and its eigevalues using the input DVF, and then
 %   calculates the three spectral maps.
 %
-%   *NOTE* The distinction between the two is made solely by whether or
-%   not the input array is of 'real' or 'complex' type.  If the input is
-%   to be eigenvalues that happen to be strictly real, it should be
-%   passed as complex(LAMBDA).
+% NOTES
+%
+%   The distinction between the two cases (eigenvalue vs DVF input) is made
+%   solely by whether or not the input array is of 'real' or 'complex'
+%   type.  If the input array contains eigenvalues that happen to be
+%   strictly real, it should be passed as complex(LAMBDA).
 %   
 % MEASURES
 %
@@ -98,8 +100,9 @@ function [CtrlIdx, Rho, Det, Lambda] = ntdcMeasures (F)
 %
 %   [1] A. Dubey*, A.-S. Iliopoulos*, X. Sun, F.-F. Yin, and L. Ren,
 %   "Iterative inversion of deformation vector fields with feedback
-%   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, May 2018.
-%   DOI: 10.1002/mp.12962.
+%   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, 2018.
+%   - DOI: 10.1002/mp.12962
+%   - arXiv: 1610.08589 [cs.CV]
 %
 %
 % See also      dvf.jacobian, dvf.eigJacobian, dvf.feedbackControlVal
@@ -153,7 +156,7 @@ end
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
 %   1.0.0 - October 31, 2018
 %

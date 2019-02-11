@@ -55,8 +55,9 @@ function Mask = maskDomain (F)
 %
 %   [1] A. Dubey*, A.-S. Iliopoulos*, X. Sun, F.-F. Yin, and L. Ren,
 %   "Iterative inversion of deformation vector fields with feedback
-%   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, May 2018.
-%   DOI: 10.1002/mp.12962.
+%   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, 2018.
+%   - DOI: 10.1002/mp.12962
+%   - arXiv: 1610.08589 [cs.CV]
 %
 %
 % See also      dvf.inversion, dvf.coorDisplace, imclose
@@ -76,6 +77,9 @@ function Mask = maskDomain (F)
     
     % max displacement in each dimension [1 x D]
     maxDisp = ceil( reshape( max( max( abs(F), [], 1:dim ), 0 ), [1 dim] ) );
+    if isa( F, 'gpuArray' )
+        maxDisp = gather( maxDisp );
+    end
     
     
     %% DOMAIN MASK
@@ -92,7 +96,7 @@ function Mask = maskDomain (F)
     
     % deformed domain (equivalent to nearest-neighbor scattered interpolation
     % from deformed coordinates onto padded reference grid)
-    MaskDfm = false( szDom + 2*maxDisp + 1 );
+    MaskDfm = false( szDom + 2*maxDisp + 1 ); % *padded domain range)
     gridDfm = cellfun( @(x,d) round(x) + d, gridDfm, num2cell(maxDisp), ...
                        'UniformOutput', false );
     idxDfm  = sub2ind( size(MaskDfm), gridDfm{:} );
@@ -119,7 +123,7 @@ end
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
 %   1.0.0 - October 31, 2018
 %

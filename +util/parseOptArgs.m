@@ -106,7 +106,7 @@ end
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
 %   1.0.0 - October 31, 2018
 %

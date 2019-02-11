@@ -78,10 +78,12 @@ function R = icResidual (F, G, interpMethod, extrapVal, xxF, yyF, zzF)
 %   [1] A. Dubey*, A.-S. Iliopoulos*, X. Sun, F.-F. Yin, and L. Ren,
 %   "Iterative inversion of deformation vector fields with feedback
 %   control," Medical Physics, vol. 45, no. 7, pp. 3147-3160, 2018.
-%   [DOI:10.1002/mp.12962]
+%   - DOI: 10.1002/mp.12962
+%   - arXiv: 1610.08589 [cs.CV]
 %
 %   [2] A. Dubey, "Symmetric completion of deformable registration via
-%   bi-residual inversion," PhD thesis, Duke University, Durham, NC, USA.
+%   bi-residual inversion," PhD thesis, Duke University, Durham, NC, USA,
+%   2018.
 %
 %   [3] G. E. Christensen and H. J. Johnson, "Consistent image
 %   registration," IEEE Transactions on Medical Imaging, vol. 20, no. 7,
@@ -148,7 +150,7 @@ end
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
 %   1.0.0 - October 31, 2018
 %
