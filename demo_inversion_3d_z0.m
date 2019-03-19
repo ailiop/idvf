@@ -115,7 +115,7 @@ fprintf( '\n***** BEGIN (%s) *****\n\n', mfilename );
 
 fprintf( '...visualizing synthetic reference and study images...\n' );
 
-IRef = util.imageGridSmooth( [szDom zdim], [15 15 5] );
+IRef = util.imageGridSmooth( szDom, [15 15 5] );
 IStd = dvf.imdeform( IRef, F );
 
 hFig      = vis.mfigure;
