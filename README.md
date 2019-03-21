@@ -4,7 +4,7 @@
 [![Zenodo DOI](https://zenodo.org/badge/153499710.svg)](https://zenodo.org/badge/latestdoi/153499710)
 [![GitHub release](https://img.shields.io/github/release/ailiop/idvf.svg)](https://github.com/ailiop/idvf/releases/)
 [![GitHub license](https://img.shields.io/github/license/ailiop/idvf.svg)](https://github.com/ailiop/idvf/blob/master/LICENSE)
-[![Github all releases](https://img.shields.io/github/downloads/ailiop/idvf/total.svg)](https://github.com/ailiop/idvf/releases/)
+[![GitHub all releases](https://img.shields.io/github/downloads/ailiop/idvf/total.svg)](https://github.com/ailiop/idvf/releases/)
 [![GitHub issues](https://img.shields.io/github/issues/ailiop/idvf.svg)](https://github.com/ailiop/idvf/issues/)
 
 
@@ -186,12 +186,12 @@ bi-residual inversion*, PhD thesis, Duke University, Durham, NC, USA, 2018.
 
 
 To use idvf, simply add its top-level directory to the [MATLAB
-path][matlab-path].  All functions are organized in
-[packages][matlab-packages].
+path][matlab-path].  All functions are organized in [packages][matlab-pkg].
 
-[matlab-path]:     https://www.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html
+[matlab-path]: https://www.mathworks.com/help/matlab/matlab_env/what-is-the-matlab-search-path.html
 
-[matlab-packages]: https://www.mathworks.com/help/matlab/matlab_oop/scoping-classes-with-packages.html
+[matlab-pkg]:  https://www.mathworks.com/help/matlab/matlab_oop/scoping-classes-with-packages.html
+
 
 
 <a name="testing"></a>
@@ -199,10 +199,10 @@ path][matlab-path].  All functions are organized in
 ### Testing
 
 
-To test idvf, run the included demo scripts (`demo_inversion_2d`,
-`demo_inversion_3d_z0`, `demo_inversion_3d_zsin`).  Each script
-demonstrates inversion of a sample forward DVF using 8 different feedback
-control settings, and produces the following visualizations:
+To test idvf, run `test_idvf` (which simply runs the included demo scripts
+`demo_inversion_2d`, `demo_inversion_3d_z0`, and `demo_inversion_3d_zsin`).
+Each demo performs inversion of a synthetic forward DVF using 8 different
+feedback control settings, and produces the following visualizations:
 
 -   Deformation of a synthetic grid-like image by the forward DVF.
 -   Spectral measure maps of the forward DVF
@@ -269,7 +269,8 @@ values per the chosen scheme.
 Function `dvf.ntdcMeasures` calculates three characteristic spectral
 measures of a DVF.  Specifically, it returns the algebraic control index
 map, the non-translational component spectral radius map, and the
-determinant map.
+determinant map.  See Reference [[1](#medphys2018)] for a description of
+the spectral measures and their relation to the inversion iteration.
 
 
 
@@ -313,14 +314,15 @@ The output data arrays are returned as `gpuArray` objects.
 ### Eigenvalue calculations
 
 
-Eigenvalue calculations are currently slow with large DVFs.  They are
-implemented as a loop that calls the MATLAB `eig` function for each
-Jacobian over the spatial domain.  This approach is inefficient but has the
-benefit of numerical stability.  In our experience with respiratory DVFs
-over thoracic and abdominal CT domains, we have not encountered any major
-issues with efficient but numerically unstable alternatives such as
-closed-form root calculation.  Nevertheless, we do not include such
-alternatives, in the interest of stability and simplicity over efficiency.
+Eigenvalue calculations in `dvf.eigJacobian` are currently slow with large
+DVFs.  They are implemented as a loop that calls the MATLAB `eig` function
+for each Jacobian over the spatial domain.  This approach is inefficient
+but has the benefit of numerical stability.  In our experience with
+respiratory DVFs over thoracic and abdominal CT domains, we have not
+encountered any major issues with efficient but numerically unstable
+alternatives such as closed-form cubic root calculation.  Nevertheless, we
+do not include such alternatives in idvf, in the interest of stability and
+simplicity over efficiency.
 
 
 
@@ -330,8 +332,8 @@ alternatives, in the interest of stability and simplicity over efficiency.
 ## System environment
 
 
-The repository code was developed and tested on MATLAB R2018b.  The
-following functions in MATLAB toolboxes are used:
+The idvf code was developed and tested on MATLAB R2018b.  Dependencies to
+MATLAB toolboxes include the following functions:
 
 -   `imresize`, `imresize3`, `imdilate`, `imerode`, and `imclose` (Image
     Processing Toolbox, tested with version 10.3);

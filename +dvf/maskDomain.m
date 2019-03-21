@@ -96,7 +96,7 @@ function Mask = maskDomain (F)
     
     % deformed domain (equivalent to nearest-neighbor scattered interpolation
     % from deformed coordinates onto padded reference grid)
-    MaskDfm = false( szDom + 2*maxDisp + 1 ); % *padded domain range)
+    MaskDfm = false( szDom + 2*maxDisp + 1 ); % (padded domain range)
     gridDfm = cellfun( @(x,d) round(x) + d, gridDfm, num2cell(maxDisp), ...
                        'UniformOutput', false );
     idxDfm  = sub2ind( size(MaskDfm), gridDfm{:} );

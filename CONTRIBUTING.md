@@ -1,7 +1,7 @@
 ## Contributing to idvf
 
 
-We welcome contributions that help improve the `idvf` project!  Please read
+We welcome contributions that help improve the idvf project!  Please read
 through the guidelines in this document before reporting an issue or
 submitting a request.  We will do our best to respond to all issues and
 requests, but please bear in mind that it may take us a while.
@@ -26,15 +26,15 @@ requests, but please bear in mind that it may take us a while.
 ### Types of contributions
 
 
--   *Bug reports.*
--   *Compatibility patches:* support for earlier MATLAB versions;
-    alternatives to MATLAB Toolbox functions.
--   *Minor patches:* documentation clarification and typos;
-    code/documentation formatting; naming convention amendments.
--   *Functionality updates.*
--   *Testing:* testing or demo scripts for existing functionality.
--   *Re-implementations:* performance improvements; system/language support
-    extensions.
+-   Bug reports.
+-   Compatibility patches (support for earlier MATLAB versions;
+    alternatives to MATLAB Toolbox functions).
+-   Minor patches (documentation clarification and typos;
+    code/documentation formatting; naming convention amendments).
+-   Functionality updates.
+-   Testing (testing or demo scripts for existing functionality).
+-   Re-implementations (performance improvements; system/language support
+    extensions).
 -   Anything else, as long as its utility and functionality is described.
 
 
@@ -67,9 +67,9 @@ list the following information in the issue body:
 ### Pull requests
 
 
-Please [submit a GitHub pull request][github-pull-request] for each code or
-documentation contribution to `idvf`.  When submitting a pull request,
-please adhere to the following.
+Please submit a [pull request][github-pull-request] for each code or
+documentation contribution to idvf.  When submitting a pull request, please
+adhere to the following.
 
 -   Clearly identify the [type of your contribution](#contrib-types) in the
     title and body of your pull request.
@@ -84,8 +84,8 @@ please adhere to the following.
     request body.
 -   [Squash partial commits][github-squash-commit].
 -   If applicable, draft some relevant text to be added to or amended in
-    the README.  Please include the text in the pull request body, *not* as
-    part of the commit.
+    the README.  Please include the text in the pull request comments,
+    *not* as part of the commit.
 
 We encourage you to open a new issue to discuss any intended contributions
 prior to developing or submitting a pull request.
@@ -102,7 +102,7 @@ prior to developing or submitting a pull request.
 ### Code and documentation style
 
 
-Please try to follow the style conventions in the `idvf` repository when
+Please try to follow the style conventions in the idvf repository when
 submitting pull requests.  We recommend that you use the source code in
 `+dvf/inversion.m` as a style template for functions, and
 `demo_inversion_2d.m` for scripts.  We generally try to observe the
@@ -112,10 +112,10 @@ following rules:
     take precedence over efficiency and performance.  The code should be
     self-documented if possible (avoid referring to descriptions in
     existing issues or pull requests).
--   Function documentation should be comprehensive and follow the format of
-    existing functions (e.g., `+dvf/inversion.m`).
+-   Function interface documentation should be comprehensive and follow the
+    format of existing functions (e.g., `+dvf/inversion.m`).
 -   Function and variable names are in `camelCase`; script names are in
-    `snake_case`.  Generally, matrix/array names start with an uppercase
+    `snake_case`.  Typically, matrix/array names start with an uppercase
     letter, while scalar/vector/function names start with a lowercase
     letter.
 -   All code blocks should be briefly documented.
