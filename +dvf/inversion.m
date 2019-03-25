@@ -77,8 +77,9 @@ function [G, Mu, MaskCtrl, prctRGIter, prctRFIter] = inversion (F, varargin)
 %       * 'alternating': alternating values (midrange percentiles); or
 %       * 'global-midrange': global midrange value.
 %
-%       If spatially variant control is used, MU_k(x) = MU(x + G_k(x)),
-%       where MU is the control parameter field.
+%       If spatially variant control is used, the control values field at
+%       the k-th iteration step is set as MU_k(x) := MU(x + G_k(x)), where
+%       MU is the control parameter field.
 %
 %   'Scale'             [scalar | 2-vector]             {[0.5 1.0]}
 %
@@ -917,6 +918,7 @@ end
 %         control-pararameter value search
 %       + added scaling-factor-dependent pre-padding of spatial domain
 %         to obviate boundary interpolation artifacts due to resizing
+%       . some documentation clarifications
 %
 %   1.0.1 (Nov 07, 2018) - Alexandros
 %       ! fixed error in non-invertible region calculation with 2D DVFs
