@@ -199,10 +199,10 @@ path][matlab-path].  All functions are organized in [packages][matlab-pkg].
 ### Testing
 
 
-To test idvf, run the included demo scripts (`demo_inversion_2d`,
-`demo_inversion_3d_z0`, `demo_inversion_3d_zsin`).  Each script
-demonstrates inversion of a sample forward DVF using 8 different feedback
-control settings, and produces the following visualizations:
+To test idvf, run `test_idvf` (which simply runs the included demo scripts
+`demo_inversion_2d`, `demo_inversion_3d_z0`, and `demo_inversion_3d_zsin`).
+Each demo performs inversion of a synthetic forward DVF using 8 different
+feedback control settings, and produces the following visualizations:
 
 -   Deformation of a synthetic grid-like image by the forward DVF.
 -   Spectral measure maps of the forward DVF

@@ -115,7 +115,7 @@ fprintf( '\n***** BEGIN (%s) *****\n\n', mfilename );
 
 fprintf( '...visualizing synthetic reference and study images...\n' );
 
-IRef = util.imageGridSmooth( [szDom zdim], [15 15 5] );
+IRef = util.imageGridSmooth( szDom, [15 15 5] );
 IStd = dvf.imdeform( IRef, F );
 
 hFig      = vis.mfigure;
@@ -339,13 +339,16 @@ fprintf( '\n***** END (%s) *****\n\n', mfilename );
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
-%   0.2 - December 21, 2018
+%   1.0.3 - December 21, 2018
 %
 % CHANGELOG
 %
-%   0.2 (Dec 21, 2018) - Alexandros
+%   1.0.3 (Mar 23, 2019) - Alexandros
+%       ! fixed error in synthetic image generation
+%
+%   1.0.2 (Dec 21, 2018) - Alexandros
 %       + added IC residual magnitude maps
 %       + added image-space error maps (reference image recovery)
 %       + added control scheme: pointwise optimal control values with
@@ -353,7 +356,7 @@ fprintf( '\n***** END (%s) *****\n\n', mfilename );
 %       . changed synthetic reference image to smooth version
 %       . parameter clean-up and explicit visualization options
 %
-%   0.1 (Oct 08, 2018) - Alexandros
-%       . initial implementation
+%   1.0.1 (Oct 08, 2018) - Alexandros
+%       . initial version
 %
 % ------------------------------------------------------------
