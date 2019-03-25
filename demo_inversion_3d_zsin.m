@@ -333,21 +333,8 @@ fprintf( '\n***** END (%s) *****\n\n', mfilename );
 %
 %   Alexandros-Stavros Iliopoulos       ailiop@cs.duke.edu
 %
-% VERSION
+% RELEASE
 %
-%   0.2 - December 21, 2018
-%
-% CHANGELOG
-%
-%   0.2 (Dec 21, 2018) - Alexandros
-%       + added IC residual magnitude maps
-%       + added image-space error maps (reference image recovery)
-%       + added control scheme: pointwise optimal control values with
-%         local search, local acceleration, and two-scale iteration
-%       . changed synthetic reference image to smooth version
-%       . parameter clean-up and explicit visualization options
-%
-%   0.1 (Oct 08, 2018) - Alexandros
-%       . initial implementation
+%   1.0.2 - December 21, 2018
 %
 % ------------------------------------------------------------
