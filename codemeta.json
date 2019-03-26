@@ -25,11 +25,11 @@
   "identifier": "https://doi.org/10.5281/zenodo.1476601",
   "codeRepository": "https://github.com/ailiop/idvf",
   "datePublished": "2018-11-01",
-  "dateModified": "2019-03-25",
+  "dateModified": "2019-03-26",
   "dateCreated": "2018-11-01",
   "description": "Iterative inversion of deformation vector field with adaptive bi-residual feedback control",
   "keywords": "deformation vector field, optical flow, deformable registration, fixed-point iteration, inverse consistency, adaptive feedback control, medical image analysis, computer vision, MATLAB",
   "license": "GPL v3.0",
   "title": "idvf",
-  "version": "v1.0.3"
+  "version": "v1.0.3b"
 }
