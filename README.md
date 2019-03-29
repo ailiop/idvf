@@ -1,7 +1,7 @@
 # idvf: _Iterative inversion of deformation vector field with adaptive bi-residual feedback control_
 
 
-[![Zenodo DOI](https://zenodo.org/badge/153499710.svg)](https://zenodo.org/badge/latestdoi/153499710)
+[![JOSS DOI](http://joss.theoj.org/papers/10.21105/joss.01076/status.svg)](https://doi.org/10.21105/joss.01076)
 [![GitHub release](https://img.shields.io/github/release/ailiop/idvf.svg)](https://github.com/ailiop/idvf/releases/)
 [![GitHub license](https://img.shields.io/github/license/ailiop/idvf.svg)](https://github.com/ailiop/idvf/blob/master/LICENSE)
 [![GitHub all releases](https://img.shields.io/github/downloads/ailiop/idvf/total.svg)](https://github.com/ailiop/idvf/releases/)
@@ -18,7 +18,7 @@
 - [Algorithm overview](#algorithm)
 	- [Two inverse consistency residuals](#ic-residuals)
 	- [DVF inversion iteration with bi-residual feedback control](#inversion-iteration)
-	- [References](#references)
+- [References](#references)
 - [Getting started](#getting-started)
 	- [Installation](#installation)
 	- [Testing](#testing)
@@ -44,10 +44,11 @@ This repository contains a set of MATLAB functions for fast and accurate
 inversion of 2D/3D deformation vector fields (DVFs), which are also known
 as flow or dense motion fields.  The inversion algorithm framework and a
 unified analysis are described in References
-[[1](#medphys2018),[2](#phddubey2018)].  To our knowledge, this is the
-first DVF inversion framework that is supported by theoretical guarantees
-under mild and verifiable conditions.  We give a brief overview of the DVF
-inversion algorithm which underlies the repository functions.
+[[1](#medphys2018),[2](#phddubey2018)]; the code itself is published as
+Reference [[3](#joss2019)].  To our knowledge, this is the first DVF
+inversion framework that is supported by theoretical guarantees under mild
+and verifiable conditions.  We give a brief overview of the DVF inversion
+algorithm which underlies the repository functions.
 
 
 We assume that we are provided with a deformation vector field (DVF)
@@ -149,9 +150,10 @@ by a multi-resolution scheme, elaborated in Reference [[2](#phddubey2018)].
 
 
 
+
 <a name="references"></a>
 
-### References
+## References
 
 
 <a name="medphys2018"></a>
@@ -162,7 +164,6 @@ control"][medphys2018-doi], *Medical Physics*, 45(7):3147-3160, 2018.
 <small>[(arXiv)][medphys2018-arxiv]</small>
 
 [medphys2018-doi]:   https://doi.org/10.1002/mp.12962
-
 [medphys2018-arxiv]: https://arxiv.org/abs/1610.08589
 
 
@@ -170,6 +171,16 @@ control"][medphys2018-doi], *Medical Physics*, 45(7):3147-3160, 2018.
 
 [2] A. Dubey, *Symmetric completion of deformable registration via
 bi-residual inversion*, PhD thesis, Duke University, Durham, NC, USA, 2018.
+
+
+<a name="joss2019"></a>
+
+[3] A.S. Iliopoulos, A. Dubey, and X. Sun, ["`idvf`: Iterative inversion of
+deformation vector field with adaptive bi-residual feedback
+control"][joss2019-doi], *Journal of Open Source Software*, 4(35):1076,
+2019.
+
+[joss2019-doi]: https://doi.org/10.21105/joss.01076
 
 
 
@@ -299,7 +310,7 @@ domain.  Function `dvf.maskDomain` calculates the valid domain.
 
 
 All `dvf.*` functions are GPU-enabled, supported by the MATLAB Parallel
-Computing Toolbox.  When a compatible GPU is available, GPU computation is
+Computing Toolbox.  If a compatible GPU is available, GPU computation is
 invoked by casting the input data arrays into `gpuArray` objects; for
 example:
 
@@ -359,9 +370,7 @@ bugs/issues, please see our [contribution guidelines][contrib] and [code of
 conduct][conduct].
 
 [license]: https://github.com/ailiop/idvf/blob/master/LICENSE
-
 [contrib]: https://github.com/ailiop/idvf/blob/master/CONTRIBUTING.md
-
 [conduct]: https://github.com/ailiop/idvf/blob/master/CODE_OF_CONDUCT.md
 
 
