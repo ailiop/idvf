@@ -169,8 +169,11 @@ control"][medphys2018-doi], *Medical Physics*, 45(7):3147-3160, 2018.
 
 <a name="phddubey2018"></a>
 
-[2] A. Dubey, *Symmetric completion of deformable registration via
-bi-residual inversion*, PhD thesis, Duke University, Durham, NC, USA, 2018.
+[2] A. Dubey, [*Symmetric completion of deformable registration via
+bi-residual inversion*][phddubey2018-url], PhD thesis, Duke University,
+Durham, NC, USA, 2018.
+
+[phddubey2018-url]: https://hdl.handle.net/10161/18224
 
 
 <a name="joss2019"></a>
