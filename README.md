@@ -4,7 +4,7 @@
 [![JOSS DOI](http://joss.theoj.org/papers/10.21105/joss.01076/status.svg)](https://doi.org/10.21105/joss.01076)
 [![GitHub release](https://img.shields.io/github/release/ailiop/idvf.svg)](https://github.com/ailiop/idvf/releases/)
 [![GitHub license](https://img.shields.io/github/license/ailiop/idvf.svg)](https://github.com/ailiop/idvf/blob/master/LICENSE)
-[![GitHub all releases](https://img.shields.io/github/downloads/ailiop/idvf/total.svg)](https://github.com/ailiop/idvf/releases/)
+[![View idvf on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/71246-idvf)
 [![GitHub issues](https://img.shields.io/github/issues/ailiop/idvf.svg)](https://github.com/ailiop/idvf/issues/)
 
 
